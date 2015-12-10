@@ -13,3 +13,4 @@ print(textString)
 
 let builder = HaffmanTreeBuilder(text: textString)
 print(builder.generateDistribution())
+builder.buildTree()

@@ -11,10 +11,11 @@ import Foundation
 /// [DONE] Phase 1. Get source string and save it
 /// [DONE] Phase 2. Parse source string into characters
 /// [DONE] Phase 3. Calculate quantity of the each symbols in the text
-/// Phase 4. Build HaffmanTree
-/// Phase 5. Encode text using created tree
-/// Phase 6. Decode encoded text and verity using original string
-/// Phase 7. Save text on the file system
+/// [DONE] Phase 4. Build HaffmanTree
+/// Phase 5. Create encoding map
+/// Phase 6. Encode text using created tree
+/// Phase 7. Decode encoded text and verity using original string
+/// Phase 8. Save text on the file system
 
 public class HaffmanTreeBuilder {
     typealias DistributionMap = [Int : [Character]]
@@ -55,27 +56,115 @@ public class HaffmanTreeBuilder {
         return invertedDistributionMap
     }
     
-    func buildTree() -> HaffmanTree {
-        typealias TreeBuildResources = (DistributionMap, [HaffmanTree])
+    func buildTree() -> HaffmanTree? {
+        let sortedDistribution = generateDistribution().sort { $0.0 < $1.0 }
         
-        let initialBuildResources = (DistributionMap(), [HaffmanTree]())
-        let sortedDistribution = generateDistribution().sort { $0.0 > $1.0 }
-        
-        let mediateResults = sortedDistribution.reduce(initialBuildResources) { current, nextTuple -> TreeBuildResources in
-            nextTuple.0
-            return (DistributionMap(), [HaffmanTree]())
+        let collectedTrees = sortedDistribution.reduce([HaffmanTree]()) { collectedTrees, nextTuple -> [HaffmanTree] in
+            let quantity = nextTuple.0
+            let symbols = nextTuple.1
+            
+            let trees = symbols.map { symbol -> HaffmanTree in
+                let node = Node(value: String(symbol), quantity: quantity)
+                return HaffmanTree(root: node)
+            }
+            
+            return collectedTrees + trees
         }
         
-        return HaffmanTree()
+        let sortedTrees = collectedTrees.sort { first, second -> Bool in first.root.quantity < second.root.quantity }
+        let finalTrees = simplify(sortedTrees)
+        precondition(finalTrees.count == 1)
+        
+        let finalTree = finalTrees.first
+        digitize(finalTree?.root)
+        
+        return finalTree
     }
     
-    private func simplify(tree: HaffmanTree, distribution:[Int:Character]) -> HaffmanTree {
-        return HaffmanTree()
+    func digitize(node: Node?) {
+        if let aliveNode = node {
+            aliveNode.leftChild?.digit = 0
+            aliveNode.rightChild?.digit = 1
+            
+            digitize(aliveNode.leftChild)
+            digitize(aliveNode.rightChild)
+        }
+    }
+
+    private func simplify(trees: [HaffmanTree]) -> [HaffmanTree] {
+        print(trees.map { $0.root.symbol } )
+        if trees.count == 1 {
+            return trees
+        } else {
+            let first = trees[0], second = trees[1]
+            let combinedTree = first.join(second)
+            let partedTrees = (trees.count > 2) ? Array(trees[2...(trees.count - 1)]) : [HaffmanTree]()
+            
+            let beforeInsertingTreesAmount = partedTrees.count
+            let updatedTreeGroup = partedTrees.reduce([HaffmanTree]()) { collectedTrees, nextTree -> [HaffmanTree] in
+                var mutableCollectedTrees = collectedTrees
+                if (combinedTree.root.quantity < nextTree.root.quantity) {
+                    mutableCollectedTrees.append(combinedTree)
+                }
+                mutableCollectedTrees.append(nextTree)
+                
+                return mutableCollectedTrees
+            }
+            let afterInsertingTreesAmount = updatedTreeGroup.count
+            
+            /// If there are no changes combined tree should be placed as the last
+            let finalTreeGroup = (afterInsertingTreesAmount == beforeInsertingTreesAmount) ? updatedTreeGroup + [combinedTree] : updatedTreeGroup
+            return simplify(finalTreeGroup)
+        }
     }
 }
 
-public class HaffmanTree {
-//    let root
+class Node {
+    /// Values for building tree
+    let quantity: Int
+    
+    /// Values for the decoding/encoding
+    let symbol: String
+    var digit: Int?
+    
+    var leftChild: Node?
+    var rightChild: Node?
+    
+    init(value: String, quantity: Int) {
+        self.quantity = quantity
+        self.symbol = value
+    }
+    
+    func join(anotherNode: Node) -> Node {
+        let parentNodeValue = self.symbol + anotherNode.symbol
+        let parentNodeQuantity = self.quantity + anotherNode.quantity
+        let parentNode = Node(value: parentNodeValue, quantity: parentNodeQuantity)
+        parentNode.leftChild = (self.quantity <= anotherNode.quantity) ? self : anotherNode
+        parentNode.rightChild = (self.quantity > anotherNode.quantity) ? self : anotherNode
+        return parentNode
+    }
+}
+
+class HaffmanTree {
+    let root: Node
+    
+    func description() -> String {
+        return root.symbol
+    }
+    
+    init(root: Node) {
+        self.root = root
+    }
+    
+    func join(node: Node) -> HaffmanTree {
+        let rootNode = self.root.join(node)
+        return HaffmanTree(root: rootNode)
+    }
+    
+    func join(anotherTree: HaffmanTree) -> HaffmanTree {
+        let rootNode = self.root.join(anotherTree.root)
+        return HaffmanTree(root: rootNode)
+    }
     
     func encode(originalText: String) -> String {
         return ""

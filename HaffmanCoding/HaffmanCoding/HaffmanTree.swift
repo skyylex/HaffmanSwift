@@ -81,7 +81,7 @@ public class HaffmanTreeBuilder {
         return finalTree
     }
     
-    func digitize(node: Node?) {
+    private func digitize(node: Node?) {
         if let aliveNode = node {
             aliveNode.leftChild?.digit = 0
             aliveNode.rightChild?.digit = 1
@@ -101,15 +101,18 @@ public class HaffmanTreeBuilder {
             let partedTrees = (trees.count > 2) ? Array(trees[2...(trees.count - 1)]) : [HaffmanTree]()
             
             let beforeInsertingTreesAmount = partedTrees.count
-            let updatedTreeGroup = partedTrees.reduce([HaffmanTree]()) { collectedTrees, nextTree -> [HaffmanTree] in
-                var mutableCollectedTrees = collectedTrees
+//            let updatedTreeGroup = partedTrees.reduce([HaffmanTree]()) { collectedTrees, nextTree -> [HaffmanTree] in
+            var insertPosition = 0
+            for nextTree in partedTrees {
                 if (combinedTree.root.quantity < nextTree.root.quantity) {
-                    mutableCollectedTrees.append(combinedTree)
+                    break
+                } else {
+                    insertPosition += 1
                 }
-                mutableCollectedTrees.append(nextTree)
-                
-                return mutableCollectedTrees
             }
+            var updatedTreeGroup = partedTrees
+            updatedTreeGroup.insert(combinedTree, atIndex: insertPosition)
+//            }
             let afterInsertingTreesAmount = updatedTreeGroup.count
             
             /// If there are no changes combined tree should be placed as the last
@@ -129,6 +132,10 @@ class Node {
     
     var leftChild: Node?
     var rightChild: Node?
+    
+    var isLeaf: Bool {
+        return self.rightChild == nil && self.leftChild == nil
+    }
     
     init(value: String, quantity: Int) {
         self.quantity = quantity
@@ -166,6 +173,43 @@ class HaffmanTree {
         return HaffmanTree(root: rootNode)
     }
     
+    func generateEncodingMap() -> [Character : String] {
+        return generateEncodingMap(self.root, digitString: "")
+    }
+    
+    private func generateEncodingMap(node: Node?, digitString: String) -> [Character : String] {
+        var encodingMap = [Character:String]()
+        
+        if let aliveNode = node {
+            var updatedDigitString = digitString
+            
+            if let symbol = aliveNode.symbol.characters.first, digit = aliveNode.digit {
+                updatedDigitString += String(digit)
+                
+                if aliveNode.isLeaf == true {
+                    return [symbol : updatedDigitString]
+                }
+            }
+            
+            let leftPartResults = generateEncodingMap(aliveNode.leftChild, digitString:updatedDigitString)
+            let rightPartResults = generateEncodingMap(aliveNode.rightChild, digitString:updatedDigitString)
+            encodingMap.update(leftPartResults)
+            encodingMap.update(rightPartResults)
+        }
+        
+        return encodingMap
+    }
+}
+
+extension Dictionary {
+    mutating func update(other:Dictionary) {
+        for (key,value) in other {
+            self.updateValue(value, forKey:key)
+        }
+    }
+}
+
+class HaffmanCoder {
     func encode(originalText: String) -> String {
         return ""
     }

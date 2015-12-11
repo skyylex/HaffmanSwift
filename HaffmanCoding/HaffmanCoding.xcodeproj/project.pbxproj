@@ -14,8 +14,8 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		42720FE81C18410F008B62B4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			buildActionMask = 8;
+			dstPath = .;
 			dstSubfolderSpec = 0;
 			files = (
 			);
@@ -243,6 +243,7 @@
 				42720FF31C18410F008B62B4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

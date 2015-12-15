@@ -10,32 +10,22 @@ import Foundation
 
 let link = "https://wordpress.org/plugins/about/readme.txt"
 let url = NSURL(string: link)!
-print("size: " + String(NSData(contentsOfURL: url)?.length))
-print("\n\n ===== \n\n");
-//let text = try NSString(contentsOfURL: url, encoding: NSUTF8StringEncoding)
-let text = "The MIT License (MIT) Copyright (c) 2015 Yury Lapitsky"
-
-print(text)
-
+let text = try NSString(contentsOfURL: url, encoding: NSUTF8StringEncoding)
 
 if let aliveText = text as String? {
+    print("Origin text:" + aliveText)
     let builder = HaffmanTreeBuilder(text: aliveText)
-    print(builder.generateDistribution().sort { first, second -> Bool in
-        return first.0 > second.0
-    })
-    print("\n\n")
-    
     let tree = builder.buildTree()
     
     if let encodingMap = tree?.generateEncodingMap(), decodingMap = tree?.generateDecodingMap() {
         /// Validation of the encoding/decoding
-        print("Validation result: " + String(tree?.validate()))
+        print("Validation of the tree: " + String(tree?.validate()))
         
-        print(encodingMap)
+        print("Encoding map: " + String(encodingMap))
         
         var dataStorage = [[Bit]]()
         
-        print ("aliveText chars count: " + String(aliveText.characters.count))
+        print ("Source text symbols count: " + String(aliveText.characters.count))
         for char in aliveText.characters {
             let key = String(char)
             if let value = encodingMap[char] {
@@ -43,20 +33,13 @@ if let aliveText = text as String? {
                 dataStorage.append(digits)
             }
         }
+                
+        let encodedInfo = BitsCoder.bitSequencesToByteSequences(dataStorage)
+        let binaryStringFromBytes = BitsDecoder.decodeDoubleWordsToString(encodedInfo.bytes)
         
-        let bitsCollection = dataStorage.flatten()
-        let bitsString = String.bitString(Array(bitsCollection))
-        print("Raw: " + bitsString)
+        print("Compressed amount: \(encodedInfo.bytes.count * bytesInUInt32)")
         
-        let encodedData = BitsCoder.bitSequencesToByteSequences(dataStorage)
-        let binaryStringFromBytes = BitsDecoder.decodeDoubleWordsToString(encodedData.bytes)
-        print("Decoded: " + binaryStringFromBytes)
-        
-        print("Compare: " + String(binaryStringFromBytes.compare(bitsString)))
-        
-        print("Compressed amount: \(encodedData.bytes.count * 4)")
-        
-        let decodedString = BitsDecoder.decodeDoubleWordSequence(encodedData.bytes, decodingMap: decodingMap, lastElementBitsLeft:encodedData.lastCellSymbolsLeft)
+        let decodedString = BitsDecoder.decode(encodedInfo.bytes, decodingMap: decodingMap, digitsLeft:encodedInfo.lastCellSymbolsLeft)
         print(decodedString)
     }
 }

@@ -34,11 +34,15 @@ public extension String {
     }
 }
 
+extension Dictionary {
+    
+}
+
 public typealias DoubleWord = UInt32
 
 private let bitsInByte = 8
 private let doubleWordBitsAmount = sizeof(DoubleWord) * bitsInByte
-
+public let bytesInUInt32 = 4
 public struct BytesSequence {
     public let bytes: [DoubleWord]
     public let lastCellSymbolsLeft: Int
@@ -53,36 +57,66 @@ public class BitsDecoder {
         return doubleWords.reduce("") { current, next -> String in current + doubleWordToString(next) }
     }
     
-    public static func decodeDoubleWordSequence(doubleWords: [DoubleWord], decodingMap:[String: Character], lastElementBitsLeft: Int) -> String {
-        let combinedString = doubleWords.reduce("") { current, next -> String in current + doubleWordToString(next) }
-        if let firstKey = decodingMap.keys.first {
-            let minSymbolsKeyCount = firstKey.characters.count
-            let maxSymbolsKeyCount = firstKey.characters.count
-            let (minDigitsAmount, _) = decodingMap.keys.reduce((minSymbolsKeyCount, maxSymbolsKeyCount)) { current, next -> (Int, Int) in
-                let newCount = next.characters.count
-                let min = (current.0 <= newCount) ? current.0 : newCount
-                let max = (current.1 > newCount) ? current.1 : newCount
-                return (min, max)
-            }
-            
-            let (_, decoded) = combinedString.characters.reduce(("", "")) { current, next -> (String, String) in
-                let buffer = current.0
-                let decoded = current.1
-                if buffer.characters.count < minDigitsAmount {
-                    return (buffer + String(next), decoded)
-                } else {
-                    if let decodedSymbol = decodingMap[buffer] {
-                        return ("" + String(next), decoded + String(decodedSymbol))
-                    }
-                }
-                
-                return (buffer + String(next), decoded)
-            }
-            
+    private static func fixLastSymbols(doubleWord: DoubleWord, decodingMap: [String: Character], digitsLeft: Int, decoded: String) -> String? {
+        if (digitsLeft == 0) {
             return decoded
+        } else {
+            let unwantedStringRange = ((doubleWordBitsAmount - digitsLeft)...(doubleWordBitsAmount - 1))
+            let digitsString = doubleWordToString(doubleWord)
+            let unwantedCharaters = Array(digitsString.characters)[unwantedStringRange]
+            if let minimum = findShortestKeyLength(decodingMap) {
+                let unwantedString = decode(String(unwantedCharaters), decodingMap: decodingMap, minDigitsAmount: minimum)
+                let endIndex = decoded.characters.count - 1
+                let startIndex = endIndex - unwantedString.characters.count
+                let fixed = Array(decoded.characters)[(0...startIndex)]
+                return String(fixed)
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    public static func decode(doubleWords: [DoubleWord], decodingMap:[String: Character], digitsLeft: Int) -> String? {
+        let combinedString = doubleWords.reduce("") { current, next -> String in current + doubleWordToString(next) }
+        if let mininumAmount = findShortestKeyLength(decodingMap) {
+            let decoded = decode(combinedString, decodingMap: decodingMap, minDigitsAmount:mininumAmount)
+            let lastDoubleWord = doubleWords[doubleWords.count - 1]
+            return fixLastSymbols(lastDoubleWord, decodingMap: decodingMap, digitsLeft: digitsLeft, decoded: decoded)
+        } else {
+            return nil
         }
         
-        return ""
+    }
+    
+    private static func findShortestKeyLength(decodingMap:[String: Character]) -> Int? {
+        if let first = decodingMap.keys.first {
+            let randomMinimum = first.characters.count
+            return decodingMap.keys.reduce(randomMinimum) { currentMinimum, next -> Int in
+                let next = next.characters.count
+                let min = (currentMinimum <= next) ? currentMinimum : next
+                return min
+            }
+        } else {
+            return nil
+        }
+    }
+    
+    private static func decode(encodedString: String, decodingMap: [String: Character], minDigitsAmount: Int) -> String {
+        let (_, decoded) = encodedString.characters.reduce(("", "")) { current, nextSymbol -> (String, String) in
+            let buffer = current.0
+            let decoded = current.1
+            if buffer.characters.count < minDigitsAmount {
+                return (buffer + String(nextSymbol), decoded)
+            } else {
+                if let decodedSymbol = decodingMap[buffer] {
+                    return ("" + String(nextSymbol), decoded + String(decodedSymbol))
+                }
+            }
+            
+            return (buffer + String(nextSymbol), decoded)
+        }
+        
+        return decoded
     }
 }
 
@@ -129,6 +163,10 @@ public class BitsCoder {
                 currentIntegerStorage = currentIntegerStorage | shiftedNumber
                 symbolsLeft = Int(shiftSize)
             }
+        }
+        
+        if symbolsLeft < doubleWordBitsAmount {
+            octetsStorage.append(currentIntegerStorage)
         }
         
         return BytesSequence(bytes: octetsStorage, lastCellSymbolsLeft: symbolsLeft)

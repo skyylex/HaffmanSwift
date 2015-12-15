@@ -236,17 +236,3 @@ extension Dictionary {
         }
     }
 }
-
-class HaffmanCoder {
-    func encode(originalText: String) -> String {
-        return ""
-    }
-    
-    func decode(encodedText: String) -> String {
-        return ""
-    }
-    
-    func verify(originalText: String) -> Bool {
-        return decode(encode(originalText)).compare(originalText) == NSComparisonResult.OrderedSame
-    }
-}

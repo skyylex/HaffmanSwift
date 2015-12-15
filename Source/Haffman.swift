@@ -16,16 +16,16 @@ import Foundation
 /// Phase 6. Encode text using created tree
 
 public class HaffmanTreeBuilder {
-    typealias DistributionMap = [Int : [Character]]
-    typealias ReverseDistributionMap = [Character : Int]
+    public typealias DistributionMap = [Int : [Character]]
+    public typealias ReverseDistributionMap = [Character : Int]
     
-    let text: String
+    public let text: String
     
-    init(text: String) {
+    public init(text: String) {
         self.text = text
     }
     
-    func generateDistribution() -> DistributionMap {
+    public func generateDistribution() -> DistributionMap {
         let distributionMap = self.text.characters.reduce(ReverseDistributionMap()) { current, next -> ReverseDistributionMap in
             var distributionTable = current
             if let existingQuantity = distributionTable[next] {
@@ -54,7 +54,7 @@ public class HaffmanTreeBuilder {
         return invertedDistributionMap
     }
     
-    func buildTree() -> HaffmanTree? {
+    public func buildTree() -> HaffmanTree? {
         let sortedDistribution = generateDistribution().sort { $0.0 < $1.0 }
         
         let collectedTrees = sortedDistribution.reduce([HaffmanTree]()) { collectedTrees, nextTuple -> [HaffmanTree] in
@@ -118,22 +118,22 @@ public class HaffmanTreeBuilder {
     }
 }
 
-class Node {
+public class Node {
     /// Values for building tree
-    let quantity: Int
+    public let quantity: Int
     
     /// Values for the decoding/encoding
-    let symbol: String
-    var digit: Int?
+    public let symbol: String
+    public var digit: Int?
     
-    var leftChild: Node?
-    var rightChild: Node?
+    public var leftChild: Node?
+    public var rightChild: Node?
     
-    var isLeaf: Bool {
+    public var isLeaf: Bool {
         return self.rightChild == nil && self.leftChild == nil
     }
     
-    init(value: String, quantity: Int) {
+    public init(value: String, quantity: Int) {
         self.quantity = quantity
         self.symbol = value
     }
@@ -148,14 +148,14 @@ class Node {
     }
 }
 
-class HaffmanTree {
-    let root: Node
+public class HaffmanTree {
+    public let root: Node
     
-    func description() -> String {
+    public func description() -> String {
         return root.symbol
     }
     
-    func validate() -> Bool {
+    public func validate() -> Bool {
         var validationResult = true
         let decodingMap = generateDecodingMap()
         for key1 in decodingMap.keys {
@@ -172,11 +172,11 @@ class HaffmanTree {
         return validationResult
     }
     
-    init(root: Node) {
+    public init(root: Node) {
         self.root = root
     }
     
-    func join(node: Node) -> HaffmanTree {
+    public func join(node: Node) -> HaffmanTree {
         let rootNode = self.root.join(node)
         return HaffmanTree(root: rootNode)
     }
@@ -186,7 +186,7 @@ class HaffmanTree {
         return HaffmanTree(root: rootNode)
     }
     
-    func generateDecodingMap() -> [String: Character] {
+    public func generateDecodingMap() -> [String: Character] {
         return generateEncodingMap().reduce([String: Character]()) { current, next -> [String: Character] in
             let symbol = next.0
             let string = next.1
@@ -194,7 +194,7 @@ class HaffmanTree {
         }
     }
     
-    func generateEncodingMap() -> [Character: String] {
+    public func generateEncodingMap() -> [Character: String] {
         return generateEncodingMap(self.root, digitString: "")
     }
     
@@ -223,16 +223,3 @@ class HaffmanTree {
     }
 }
 
-extension Dictionary {
-    func join(other: Dictionary) -> Dictionary {
-        var copy = self
-        copy.update(other)
-        return copy
-    }
-    
-    private mutating func update(other:Dictionary) {
-        for (key,value) in other {
-            self.updateValue(value, forKey:key)
-        }
-    }
-}

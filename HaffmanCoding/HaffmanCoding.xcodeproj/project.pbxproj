@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4237A3D01C1EC37B0047CDB2 /* BitCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4237A3CF1C1EC37B0047CDB2 /* BitCoding.swift */; };
+		42479E221C204CA8006B6B88 /* BitCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42479E1F1C204CA8006B6B88 /* BitCoding.swift */; };
+		42479E231C204CA8006B6B88 /* FoundationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42479E201C204CA8006B6B88 /* FoundationExtension.swift */; };
+		42479E241C204CA8006B6B88 /* Haffman.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42479E211C204CA8006B6B88 /* Haffman.swift */; };
 		42720FEE1C18410F008B62B4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42720FED1C18410F008B62B4 /* main.swift */; };
-		42720FF51C184126008B62B4 /* HaffmanTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42720FF41C184126008B62B4 /* HaffmanTree.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,10 +26,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4237A3CF1C1EC37B0047CDB2 /* BitCoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitCoding.swift; sourceTree = "<group>"; };
+		42479E1F1C204CA8006B6B88 /* BitCoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BitCoding.swift; path = ../../Source/BitCoding.swift; sourceTree = "<group>"; };
+		42479E201C204CA8006B6B88 /* FoundationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FoundationExtension.swift; path = ../../Source/FoundationExtension.swift; sourceTree = "<group>"; };
+		42479E211C204CA8006B6B88 /* Haffman.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Haffman.swift; path = ../../Source/Haffman.swift; sourceTree = "<group>"; };
 		42720FEA1C18410F008B62B4 /* HaffmanCoding */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HaffmanCoding; sourceTree = BUILT_PRODUCTS_DIR; };
 		42720FED1C18410F008B62B4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		42720FF41C184126008B62B4 /* HaffmanTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HaffmanTree.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,9 +63,10 @@
 		42720FEC1C18410F008B62B4 /* HaffmanCoding */ = {
 			isa = PBXGroup;
 			children = (
+				42479E1F1C204CA8006B6B88 /* BitCoding.swift */,
+				42479E201C204CA8006B6B88 /* FoundationExtension.swift */,
+				42479E211C204CA8006B6B88 /* Haffman.swift */,
 				42720FED1C18410F008B62B4 /* main.swift */,
-				42720FF41C184126008B62B4 /* HaffmanTree.swift */,
-				4237A3CF1C1EC37B0047CDB2 /* BitCoding.swift */,
 			);
 			path = HaffmanCoding;
 			sourceTree = "<group>";
@@ -126,8 +129,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				42720FEE1C18410F008B62B4 /* main.swift in Sources */,
-				42720FF51C184126008B62B4 /* HaffmanTree.swift in Sources */,
-				4237A3D01C1EC37B0047CDB2 /* BitCoding.swift in Sources */,
+				42479E241C204CA8006B6B88 /* Haffman.swift in Sources */,
+				42479E231C204CA8006B6B88 /* FoundationExtension.swift in Sources */,
+				42479E221C204CA8006B6B88 /* BitCoding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

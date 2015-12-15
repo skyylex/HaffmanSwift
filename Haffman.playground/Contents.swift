@@ -9,19 +9,13 @@
 import Foundation
 
 
-let text = "MIT License"
+let text = "MIT License \n\ns"
 let builder = HaffmanTreeBuilder(text: text)
 let tree = builder.buildTree()
 
-if let encodingMap = tree?.generateEncodingMap(), decodingMap = tree?.generateDecodingMap(), haffmanTree = tree {
-    /// Validation of the encoding/decoding
-    print("Validation of the tree: " + String(haffmanTree.validate()))
-    
-    print("Encoding map: " + String(encodingMap))
-    
+if let encodingMap = tree?.generateEncodingMap(), decodingMap = tree?.generateDecodingMap() {
+    let encodingInfo = encodingMap
     var dataStorage = [[Bit]]()
-    
-    print ("Source text symbols count: " + String(text.characters.count))
     for char in text.characters {
         let key = String(char)
         if let value = encodingMap[char] {
@@ -30,10 +24,13 @@ if let encodingMap = tree?.generateEncodingMap(), decodingMap = tree?.generateDe
         }
     }
     
+    let bits = Array(dataStorage.flatten())
+    let bitsString = String.bitString(bits)
     let encodedInfo = BitsCoder.transform(dataStorage)
     
-    print("Compressed amount: \(encodedInfo.bytes.count * bytesInUInt32)")
-    
+    let digits = encodedInfo.bytes
     let decodedString = BitsDecoder.decode(encodedInfo.bytes, decodingMap: decodingMap, digitsLeft:encodedInfo.digitsLeft)
-    print(decodedString!)
+    
+    let compressedCount = encodedInfo.bytes.count * bytesInUInt32
+    let rawCount = text.characters.count
 }

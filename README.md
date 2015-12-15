@@ -1,2 +1,4 @@
-# SwiftCompression
-Several implementations of the compression algorithms in Swift
+# HaffmanSwift
+Haffman compression algorithm implemented in Swift
+
+

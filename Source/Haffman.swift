@@ -17,8 +17,8 @@ import Foundation
 
 // Implementation to work with any binary
 open class UniversalHaffmanTreeBuilder {
-    public typealias DistributionMap = [Int : [UInt8]]
-    public typealias ReverseDistributionMap = [UInt8 : Int]
+    public typealias DistributionMap = [Int64 : [UInt8]]
+    public typealias ReverseDistributionMap = [UInt8 : Int64]
     
     // No reason to load all data at once, keep work with file directly
     public let filePath: String
@@ -26,7 +26,7 @@ open class UniversalHaffmanTreeBuilder {
     // Configuration of the bytes amount to process per read from file
     public let chunkSize: Int
     
-    public init(filePath: String, chunkSize: Int = 1024) {
+    public init(filePath: String, chunkSize: Int = 1024 * 1024) {
         self.filePath = filePath
         self.chunkSize = chunkSize
     }
@@ -36,7 +36,9 @@ open class UniversalHaffmanTreeBuilder {
         
         guard let fileStream = InputStream.init(fileAtPath: filePath) else { return nil; }
         
-        var reverseMap: ReverseDistributionMap = ReverseDistributionMap()
+        fileStream.open()
+        
+        var reverseMap = Array<Int64>(repeating: 0, count: 256)
         
         while fileStream.hasBytesAvailable {
             var buffer = Array<UInt8>(repeating: 0, count: self.chunkSize)
@@ -48,34 +50,33 @@ open class UniversalHaffmanTreeBuilder {
                 break
             case (1...Int.max):
                 for byte in buffer {
-                    if let existing = reverseMap[byte] {
-                        reverseMap[byte] = existing + 1;
-                    } else {
-                        reverseMap[byte] = 1;
-                    }
+                    let index = Int(byte)
+                    reverseMap[index] = reverseMap[index] + 1
                 }
                 print("New data was read during distribution calculation")
                 break
             case -1:
                 print("An error during reading for distribution calculation")
+                print("\(fileStream.streamError)")
                 break
             default:
                 preconditionFailure()
             }
         }
         
-        let resultMap = reverseMap.reduce(DistributionMap()) { currentMap, nextTuple -> DistributionMap in
-            let symbol = nextTuple.key;
-            let quantity = nextTuple.value;
+        fileStream.close()
+        
+        var resultMap = DistributionMap()
+        
+        for index in (0...reverseMap.count - 1) {
+            let symbol = UInt8(index)
             
-            var updatedMap = currentMap
-            if let existingSymbols = updatedMap[quantity] as Array<UInt8>? {
-                updatedMap[quantity] = existingSymbols + [symbol]
+            let quantity = reverseMap[index]
+            if let existingSymbols = resultMap[quantity] as Array<UInt8>? {
+                resultMap[quantity] = existingSymbols + [symbol]
             } else {
-                updatedMap[quantity] = [symbol]
+                resultMap[quantity] = [symbol]
             }
-            
-            return DistributionMap()
         }
         
         return resultMap
@@ -183,6 +184,36 @@ open class HaffmanTreeBuilder {
             let finalTreeGroup = (afterInsertingTreesAmount == beforeInsertingTreesAmount) ? updatedTreeGroup + [combinedTree] : updatedTreeGroup
             return simplify(finalTreeGroup)
         }
+    }
+}
+
+open class UniversalNode {
+    /// Values for building tree
+    open let quantity: Int64
+    
+    /// Values for the decoding/encoding
+    open let symbol: UInt8
+    open var digit: Int?
+    
+    open var leftChild: Node?
+    open var rightChild: Node?
+    
+    open var isLeaf: Bool {
+        return self.rightChild == nil && self.leftChild == nil
+    }
+    
+    public init(value: UInt8, quantity: Int64) {
+        self.quantity = quantity
+        self.symbol = value
+    }
+    
+    func join(_ anotherNode: Node) -> Node {
+        let parentNodeValue = self.symbol + anotherNode.symbol
+        let parentNodeQuantity = self.quantity + anotherNode.quantity
+        let parentNode = Node(value: parentNodeValue, quantity: parentNodeQuantity)
+        parentNode.leftChild = (self.quantity <= anotherNode.quantity) ? self : anotherNode
+        parentNode.rightChild = (self.quantity > anotherNode.quantity) ? self : anotherNode
+        return parentNode
     }
 }
 

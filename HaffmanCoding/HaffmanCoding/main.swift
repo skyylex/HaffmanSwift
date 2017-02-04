@@ -13,6 +13,9 @@ let text = "MIT License"
 let builder = HaffmanTreeBuilder(text: text)
 let tree = builder.buildTree()
 
+let universalBuilder = UniversalHaffmanTreeBuilder(filePath: "/Users/yurylapitsky/Temp/sample.jpeg")
+let s = universalBuilder.generateDistribution()
+
 if let encodingMap = tree?.generateEncodingMap(), let decodingMap = tree?.generateDecodingMap(), let haffmanTree = tree {
     /// Validation of the encoding/decoding
     print("Validation of the tree: " + String(haffmanTree.validate()))

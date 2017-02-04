@@ -15,17 +15,17 @@ import Foundation
 /// Phase 5. Create encoding map
 /// Phase 6. Encode text using created tree
 
-public class HaffmanTreeBuilder {
+open class HaffmanTreeBuilder {
     public typealias DistributionMap = [Int : [Character]]
     public typealias ReverseDistributionMap = [Character : Int]
     
-    public let text: String
+    open let text: String
     
     public init(text: String) {
         self.text = text
     }
     
-    public func generateDistribution() -> DistributionMap {
+    open func generateDistribution() -> DistributionMap {
         let distributionMap = self.text.characters.reduce(ReverseDistributionMap()) { current, next -> ReverseDistributionMap in
             var distributionTable = current
             if let existingQuantity = distributionTable[next] {
@@ -54,8 +54,8 @@ public class HaffmanTreeBuilder {
         return invertedDistributionMap
     }
     
-    public func buildTree() -> HaffmanTree? {
-        let sortedDistribution = generateDistribution().sort { $0.0 < $1.0 }
+    open func buildTree() -> HaffmanTree? {
+        let sortedDistribution = generateDistribution().sorted { $0.0 < $1.0 }
         
         let collectedTrees = sortedDistribution.reduce([HaffmanTree]()) { collectedTrees, nextTuple -> [HaffmanTree] in
             let quantity = nextTuple.0
@@ -69,7 +69,7 @@ public class HaffmanTreeBuilder {
             return collectedTrees + trees
         }
         
-        let sortedTrees = collectedTrees.sort { first, second -> Bool in first.root.quantity < second.root.quantity }
+        let sortedTrees = collectedTrees.sorted { first, second -> Bool in first.root.quantity < second.root.quantity }
         let finalTrees = simplify(sortedTrees)
         precondition(finalTrees.count == 1)
         
@@ -79,7 +79,7 @@ public class HaffmanTreeBuilder {
         return finalTree
     }
     
-    private func digitize(node: Node?) {
+    fileprivate func digitize(_ node: Node?) {
         if let aliveNode = node {
             aliveNode.leftChild?.digit = 0
             aliveNode.rightChild?.digit = 1
@@ -89,7 +89,7 @@ public class HaffmanTreeBuilder {
         }
     }
 
-    private func simplify(trees: [HaffmanTree]) -> [HaffmanTree] {
+    fileprivate func simplify(_ trees: [HaffmanTree]) -> [HaffmanTree] {
         /// print(trees.map { $0.root.symbol } )
         if trees.count == 1 {
             return trees
@@ -108,7 +108,7 @@ public class HaffmanTreeBuilder {
                 }
             }
             var updatedTreeGroup = partedTrees
-            updatedTreeGroup.insert(combinedTree, atIndex: insertPosition)
+            updatedTreeGroup.insert(combinedTree, at: insertPosition)
             let afterInsertingTreesAmount = updatedTreeGroup.count
             
             /// If there are no changes combined tree should be placed as the last
@@ -118,18 +118,18 @@ public class HaffmanTreeBuilder {
     }
 }
 
-public class Node {
+open class Node {
     /// Values for building tree
-    public let quantity: Int
+    open let quantity: Int
     
     /// Values for the decoding/encoding
-    public let symbol: String
-    public var digit: Int?
+    open let symbol: String
+    open var digit: Int?
     
-    public var leftChild: Node?
-    public var rightChild: Node?
+    open var leftChild: Node?
+    open var rightChild: Node?
     
-    public var isLeaf: Bool {
+    open var isLeaf: Bool {
         return self.rightChild == nil && self.leftChild == nil
     }
     
@@ -138,7 +138,7 @@ public class Node {
         self.symbol = value
     }
     
-    func join(anotherNode: Node) -> Node {
+    func join(_ anotherNode: Node) -> Node {
         let parentNodeValue = self.symbol + anotherNode.symbol
         let parentNodeQuantity = self.quantity + anotherNode.quantity
         let parentNode = Node(value: parentNodeValue, quantity: parentNodeQuantity)
@@ -148,14 +148,14 @@ public class Node {
     }
 }
 
-public class HaffmanTree {
-    public let root: Node
+open class HaffmanTree {
+    open let root: Node
     
-    public func description() -> String {
+    open func description() -> String {
         return root.symbol
     }
     
-    public func validate() -> Bool {
+    open func validate() -> Bool {
         var validationResult = true
         let decodingMap = generateDecodingMap()
         for key1 in decodingMap.keys {
@@ -176,17 +176,17 @@ public class HaffmanTree {
         self.root = root
     }
     
-    public func join(node: Node) -> HaffmanTree {
+    open func join(_ node: Node) -> HaffmanTree {
         let rootNode = self.root.join(node)
         return HaffmanTree(root: rootNode)
     }
     
-    func join(anotherTree: HaffmanTree) -> HaffmanTree {
+    func join(_ anotherTree: HaffmanTree) -> HaffmanTree {
         let rootNode = self.root.join(anotherTree.root)
         return HaffmanTree(root: rootNode)
     }
     
-    public func generateDecodingMap() -> [String: Character] {
+    open func generateDecodingMap() -> [String: Character] {
         return generateEncodingMap().reduce([String: Character]()) { current, next -> [String: Character] in
             let symbol = next.0
             let string = next.1
@@ -194,17 +194,17 @@ public class HaffmanTree {
         }
     }
     
-    public func generateEncodingMap() -> [Character: String] {
+    open func generateEncodingMap() -> [Character: String] {
         return generateEncodingMap(self.root, digitString: "")
     }
     
-    private func generateEncodingMap(node: Node?, digitString: String) -> [Character : String] {
+    fileprivate func generateEncodingMap(_ node: Node?, digitString: String) -> [Character : String] {
         let encodingMap = [Character:String]()
         
         if let aliveNode = node {
             var updatedDigitString = digitString
             
-            if let symbol = aliveNode.symbol.characters.first, digit = aliveNode.digit {
+            if let symbol = aliveNode.symbol.characters.first, let digit = aliveNode.digit {
                 updatedDigitString += String(digit)
                 
                 if aliveNode.isLeaf {

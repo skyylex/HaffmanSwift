@@ -13,11 +13,11 @@ let text = "MIT License"
 let builder = HaffmanTreeBuilder(text: text)
 let tree = builder.buildTree()
 
-if let encodingMap = tree?.generateEncodingMap(), decodingMap = tree?.generateDecodingMap(), haffmanTree = tree {
+if let encodingMap = tree?.generateEncodingMap(), let decodingMap = tree?.generateDecodingMap(), let haffmanTree = tree {
     /// Validation of the encoding/decoding
     print("Validation of the tree: " + String(haffmanTree.validate()))
     
-    print("Encoding map: " + String(encodingMap))
+    print("Encoding map: " + String(describing: encodingMap))
     
     var dataStorage = [[Bit]]()
     
@@ -25,7 +25,7 @@ if let encodingMap = tree?.generateEncodingMap(), decodingMap = tree?.generateDe
     for char in text.characters {
         let key = String(char)
         if let value = encodingMap[char] {
-            var digits = value.characters.map { $0 == "0" ? Bit.Zero : Bit.One }
+            var digits = value.characters.map { $0 == "0" ? Bit.zero : Bit.one }
             dataStorage.append(digits)
         }
     }

@@ -15,6 +15,74 @@ import Foundation
 /// Phase 5. Create encoding map
 /// Phase 6. Encode text using created tree
 
+// Implementation to work with any binary
+open class UniversalHaffmanTreeBuilder {
+    public typealias DistributionMap = [Int : [UInt8]]
+    public typealias ReverseDistributionMap = [UInt8 : Int]
+    
+    // No reason to load all data at once, keep work with file directly
+    public let filePath: String
+    
+    // Configuration of the bytes amount to process per read from file
+    public let chunkSize: Int
+    
+    public init(filePath: String, chunkSize: Int = 1024) {
+        self.filePath = filePath
+        self.chunkSize = chunkSize
+    }
+    
+    func generateDistribution() -> DistributionMap? {
+        precondition(FileManager.default.fileExists(atPath: self.filePath))
+        
+        guard let fileStream = InputStream.init(fileAtPath: filePath) else { return nil; }
+        
+        var reverseMap: ReverseDistributionMap = ReverseDistributionMap()
+        
+        while fileStream.hasBytesAvailable {
+            var buffer = Array<UInt8>(repeating: 0, count: self.chunkSize)
+            
+            let result = fileStream.read(&buffer, maxLength: buffer.count)
+            switch result {
+            case 0:
+                print("No data to read during distribution calculation")
+                break
+            case (1...Int.max):
+                for byte in buffer {
+                    if let existing = reverseMap[byte] {
+                        reverseMap[byte] = existing + 1;
+                    } else {
+                        reverseMap[byte] = 1;
+                    }
+                }
+                print("New data was read during distribution calculation")
+                break
+            case -1:
+                print("An error during reading for distribution calculation")
+                break
+            default:
+                preconditionFailure()
+            }
+        }
+        
+        let resultMap = reverseMap.reduce(DistributionMap()) { currentMap, nextTuple -> DistributionMap in
+            let symbol = nextTuple.key;
+            let quantity = nextTuple.value;
+            
+            var updatedMap = currentMap
+            if let existingSymbols = updatedMap[quantity] as Array<UInt8>? {
+                updatedMap[quantity] = existingSymbols + [symbol]
+            } else {
+                updatedMap[quantity] = [symbol]
+            }
+            
+            return DistributionMap()
+        }
+        
+        return resultMap
+    }
+}
+
+// Implementation will work only with String
 open class HaffmanTreeBuilder {
     public typealias DistributionMap = [Int : [Character]]
     public typealias ReverseDistributionMap = [Character : Int]

@@ -8,15 +8,6 @@
 
 import Foundation
 
-public enum Bit {
-    case zero
-    case one
-    
-    func rawValue() -> UInt8 {
-        return (self == .zero) ? 0 : 1;
-    }
-}
-
 public extension String {
     public func bitsSequence() -> [Bit] {
         return self.characters.map { element -> Bit in

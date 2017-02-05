@@ -11,6 +11,7 @@
 		42479E231C204CA8006B6B88 /* FoundationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42479E201C204CA8006B6B88 /* FoundationExtension.swift */; };
 		42479E241C204CA8006B6B88 /* Haffman.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42479E211C204CA8006B6B88 /* Haffman.swift */; };
 		42720FEE1C18410F008B62B4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42720FED1C18410F008B62B4 /* main.swift */; };
+		9498254D1E47173300320846 /* BitsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9498254C1E47173300320846 /* BitsContainer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		42479E211C204CA8006B6B88 /* Haffman.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Haffman.swift; path = ../../Source/Haffman.swift; sourceTree = "<group>"; };
 		42720FEA1C18410F008B62B4 /* HaffmanCoding */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HaffmanCoding; sourceTree = BUILT_PRODUCTS_DIR; };
 		42720FED1C18410F008B62B4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		9498254C1E47173300320846 /* BitsContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitsContainer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				42479E201C204CA8006B6B88 /* FoundationExtension.swift */,
 				42479E211C204CA8006B6B88 /* Haffman.swift */,
 				42720FED1C18410F008B62B4 /* main.swift */,
+				9498254C1E47173300320846 /* BitsContainer.swift */,
 			);
 			path = HaffmanCoding;
 			sourceTree = "<group>";
@@ -133,6 +136,7 @@
 				42479E241C204CA8006B6B88 /* Haffman.swift in Sources */,
 				42479E231C204CA8006B6B88 /* FoundationExtension.swift in Sources */,
 				42479E221C204CA8006B6B88 /* BitCoding.swift in Sources */,
+				9498254D1E47173300320846 /* BitsContainer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

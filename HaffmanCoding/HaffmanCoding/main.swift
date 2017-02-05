@@ -8,6 +8,10 @@
 
 import Foundation
 
+let s2 = UInt8(255).bits()
+let s4 = UInt8(16).bits()
+let s3 = UInt8(0).bits()
+
 
 let text = "MIT License"
 let builder = HaffmanTreeBuilder(text: text)

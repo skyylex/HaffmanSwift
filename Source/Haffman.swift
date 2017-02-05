@@ -81,6 +81,16 @@ open class UniversalHaffmanTreeBuilder {
         
         return resultMap
     }
+    
+    fileprivate func digitize(_ node: UniversalNode?) {
+        if let aliveNode = node {
+            aliveNode.leftChild?.digit = BitsContainer(bits: [.zero])
+            aliveNode.rightChild?.digit = BitsContainer(bits: [.one])
+            
+            digitize(aliveNode.leftChild)
+            digitize(aliveNode.rightChild)
+        }
+    }
 }
 
 // Implementation will work only with String
@@ -187,16 +197,18 @@ open class HaffmanTreeBuilder {
     }
 }
 
+typealias SymbolRepresentationInBits = BitsContainer
+
 open class UniversalNode {
     /// Values for building tree
     open let quantity: Int64
     
     /// Values for the decoding/encoding
     open let symbol: UInt8
-    open var digit: Int?
+    open var digit: BitsContainer?
     
-    open var leftChild: Node?
-    open var rightChild: Node?
+    open var leftChild: UniversalNode?
+    open var rightChild: UniversalNode?
     
     open var isLeaf: Bool {
         return self.rightChild == nil && self.leftChild == nil
@@ -207,43 +219,69 @@ open class UniversalNode {
         self.symbol = value
     }
     
-    func join(_ anotherNode: Node) -> Node {
+    func join(_ anotherNode: UniversalNode) -> UniversalNode {
         let parentNodeValue = self.symbol + anotherNode.symbol
         let parentNodeQuantity = self.quantity + anotherNode.quantity
-        let parentNode = Node(value: parentNodeValue, quantity: parentNodeQuantity)
+        let parentNode = UniversalNode(value: parentNodeValue, quantity: parentNodeQuantity)
         parentNode.leftChild = (self.quantity <= anotherNode.quantity) ? self : anotherNode
         parentNode.rightChild = (self.quantity > anotherNode.quantity) ? self : anotherNode
         return parentNode
     }
 }
 
-open class Node {
-    /// Values for building tree
-    open let quantity: Int
+open class UniversalHaffmanTree {
+    open let root: UniversalNode
     
-    /// Values for the decoding/encoding
-    open let symbol: String
-    open var digit: Int?
+    open func description() -> UInt8 {
+        return root.symbol
+    }
+
+//    open func validate() -> Bool {
+//        var validationResult = true
+//        let decodingMap = generateDecodingMap()
+//        for key1 in decodingMap.keys {
+//            for key2 in decodingMap.keys {
+//                if key1 == key2 {
+//                    continue
+//                } else if key1.hasPrefix(key2) == true {
+//                    print(key1 + " contains " + key2)
+//                    validationResult = false
+//                }
+//            }
+//        }
+//        
+//        return validationResult
+//    }
     
-    open var leftChild: Node?
-    open var rightChild: Node?
-    
-    open var isLeaf: Bool {
-        return self.rightChild == nil && self.leftChild == nil
+    public init(root: UniversalNode) {
+        self.root = root
+    }
+
+    open func join(_ node: UniversalNode) -> UniversalHaffmanTree {
+        let rootNode = self.root.join(node)
+        return UniversalHaffmanTree(root: rootNode)
+    }
+
+    func join(_ anotherTree: UniversalHaffmanTree) -> UniversalHaffmanTree {
+        let rootNode = self.root.join(anotherTree.root)
+        return UniversalHaffmanTree(root: rootNode)
     }
     
-    public init(value: String, quantity: Int) {
-        self.quantity = quantity
-        self.symbol = value
+    public typealias OriginalSymbolBits = BitsContainer
+    public typealias EncodingSymbolBits = BitsContainer
+    
+    open func generateEncodingMap() -> [OriginalSymbolBits : EncodingSymbolBits] {
+        return generateEncodingMap(self.root, sequence: BitsContainer())
     }
     
-    func join(_ anotherNode: Node) -> Node {
-        let parentNodeValue = self.symbol + anotherNode.symbol
-        let parentNodeQuantity = self.quantity + anotherNode.quantity
-        let parentNode = Node(value: parentNodeValue, quantity: parentNodeQuantity)
-        parentNode.leftChild = (self.quantity <= anotherNode.quantity) ? self : anotherNode
-        parentNode.rightChild = (self.quantity > anotherNode.quantity) ? self : anotherNode
-        return parentNode
+    fileprivate func generateEncodingMap(_ node: UniversalNode?, sequence: BitsContainer) -> [OriginalSymbolBits : EncodingSymbolBits] {
+        // TODO: 
+        
+        let encodingMap = [OriginalSymbolBits : EncodingSymbolBits]()
+        
+        guard let node = node else { return encodingMap }
+        
+        return encodingMap
     }
 }
 
@@ -322,3 +360,32 @@ open class HaffmanTree {
     }
 }
 
+open class Node {
+    /// Values for building tree
+    open let quantity: Int
+    
+    /// Values for the decoding/encoding
+    open let symbol: String
+    open var digit: Int?
+    
+    open var leftChild: Node?
+    open var rightChild: Node?
+    
+    open var isLeaf: Bool {
+        return self.rightChild == nil && self.leftChild == nil
+    }
+    
+    public init(value: String, quantity: Int) {
+        self.quantity = quantity
+        self.symbol = value
+    }
+    
+    func join(_ anotherNode: Node) -> Node {
+        let parentNodeValue = self.symbol + anotherNode.symbol
+        let parentNodeQuantity = self.quantity + anotherNode.quantity
+        let parentNode = Node(value: parentNodeValue, quantity: parentNodeQuantity)
+        parentNode.leftChild = (self.quantity <= anotherNode.quantity) ? self : anotherNode
+        parentNode.rightChild = (self.quantity > anotherNode.quantity) ? self : anotherNode
+        return parentNode
+    }
+}

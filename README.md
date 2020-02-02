@@ -6,8 +6,7 @@ Project was built as a try for creating some algorithmic work for in Swift.
 
 ### Limitations
 
-Current implementation is strongly depends on the String type. And as result doesn't work on some binary data.
-To apply this implementation in real world applications you should do additional work to fix this.
+Current implementation has a strong dependency on the Swift.String, as a consequence the implementation doesn't work for arbitrary binary data. To apply this implementation in real world applications you should do additional work to fix this.
 
 #### Contacts
 

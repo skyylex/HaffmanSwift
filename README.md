@@ -2,7 +2,7 @@
 
 Haffman compression algorithm implemented in Swift. 
 
-Project was built as a try for creating some algorithmic work for in Swift.
+The project was built as a playground to check how it would feel to implement some classic Computer Science in Swift.
 
 ### Limitations
 
